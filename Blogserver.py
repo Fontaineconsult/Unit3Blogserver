@@ -102,7 +102,8 @@ class Handler(webapp2.RequestHandler):
 				self.user = uid
 			else:
 				self.user = ""
-		
+		else:
+			self.user = None
 
 	def usercookie(self):
 		return self.user
@@ -147,6 +148,8 @@ class User(db.Model):
 
 
 ########Front Page/Posts########
+
+
 class Mainpage(Handler):
 
 	def save_user_like(self):
@@ -258,7 +261,7 @@ class User_Signup(Handler):
 				self.render("signup.html", error = user_exists)
 		if fullname == "none" or password == "none" or email == "none" or password != passwordv:
 
-			self.render("signup.html", fullname = fullname, password = password, email = email, passwordv = "nomatch")
+			self.render("signup.html", fullname = fullname, password = password, email = email, passwordv = "nomatch", loginpage = True)
 
 
 class User_Login(Handler):
@@ -416,7 +419,12 @@ class Toplevel(Handler):
  				visits = int(cookie_val)
  		visits += 1
  		new_cookie_val = make_secure_val(str(visits))
- 		self.response.headers.add_header('Set-Cookie', 'visits=%s;Path=/' % new_cookie_val)	
+ 		self.response.headers.add_header('Set-Cookie', 'visits=%s;Path=/' % new_cookie_val)
+ 		if self.user == None:	
+ 			self.response.headers.add_header('Set-Cookie', 'user="";Path=/')
+ 			self.redirect("/mainpage")
+ 		else:
+ 			self.redirect("/mainpage")
 
 
 
