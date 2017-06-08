@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "master_template.html" %}
 
 
@@ -22,4 +23,30 @@
 </div>
 
 
+=======
+{% extends "master_template.html" %}
+
+
+{% block content %}
+<div class='newpost-container'>
+	<form method="post">
+
+	<label>
+		<div>Post Title</div>
+	<input type="text" name="title" value="{{title}}">
+	</label>
+
+	<label>
+	<div>Post Content</div>
+	<textarea name="art" class='comment-add'></textarea>
+
+	</label>
+
+	<div class="error">{{error}}</div>
+	<input type="Submit">
+	</form>
+</div>
+
+
+>>>>>>> caf7c1b02b9ef656cb3a654e1d30d5b0ee5c0fee
 {% endblock %}

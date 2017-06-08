@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "master_template.html" %}
 
 
@@ -118,3 +119,125 @@
 
 {% endblock %}
 
+=======
+{% extends "master_template.html" %}
+
+
+{% block content %}
+
+
+<div class = "posts-header">
+
+<div class = "posts-header">
+	<h2>Unit 3 Blog Project</h2>	
+</div>
+</div>
+<div class="top-bar">
+<form method="get" action="/post">
+    <button type="submit" class="buttonnewpost" id="buttonnewpost">New Post</button>
+</form>
+</div>
+<div class ="master-posts-container">
+{% for art in arts %}
+{% if art.visible != False %}
+	<div class="post">
+		<div class="post-body">
+			<div class="post-container">
+				<div class="post-header">
+					<div class="title-box">
+						<div class="title-top">
+							<span class="fontawesome-minus"></span>
+							<div class="post-title">{{art.title}}&nbsp|</div>
+							<div class="post-user">{{art.created_by}}</div>
+							<div class="like-counts">+ {{art.vote_points}}</div>
+						</div>
+						<div class="title-bottom">
+							{% if art.created_by != username %}
+							{% if not art.key().id() in userdata.liked_posts %}
+								<div class="like-button">
+									<form method="post">
+						    			<button type="submit" class="fontawesome-thumbs-up" name="userlike" value="{{art.key().id()}}" id="buttonlike">Like</button>
+									</form>
+								</div>
+								{% else %}
+									<div class="unlike-button">
+										<form method="post">
+							    			<button type="submit" class ="fontawesome-thumbs-down" name="userunlike" id="buttonlike" value="{{art.key().id()}}">Unlike</button>
+										</form>
+									</div>
+								{% endif %}
+							{% endif %}
+							<div class="post-button">
+								<form method="get" action="/postview/{{art.key().id()}}">
+								{% if art.created_by == username %}
+	    						<button type="submit" id="add-comment">Edit/Comment</button>
+								{% else %}
+								<button type="submit" name="add-comment" id="add-comment">Comment</button>
+								{% endif %}
+								</form>
+							</div>
+							<div class="post-date">{{ art.created.strftime('%m-%d-%y') }}</div>
+						</div>
+					</div>
+				</div>
+				<div class="post-body-content">
+					<div class="post-content">{{art.art}}</div>
+				</div>
+			</div>
+		
+				{% for comment in comments %}
+					{% if art.key().id() == comment.post %}
+				<div class="comment-container">
+						<div class="post-comment">
+							<div class="post-comment-lower">
+								<div class="comment-decorator">
+									<div class="post-comment-user">
+										<div class="comment-user">{{comment.made_by}}</div>
+										<div class="comment-date">{{comment.made_date.strftime('%m-%d-%y')}}</div>
+									</div>
+								</div>
+								{% if comment_edit == comment.key().id() %}
+									<form method='post' type="submit">
+									<div class="inner-comment-container">
+										<div class="comment"><textarea name="comment">{{comment.comment}}</textarea></div>
+									<button id="add-comment" name="submitedit" value="{{comment.key().id()}}">submit</button>
+									<button id="add-comment" name ="canceledit" value = "cancel">Cancel</button></div>
+									</form>
+								{% else %}
+								{{comment_edit}}
+								{{comment.key().id()}}
+									<div class="inner-comment-container">
+										<div class="comment">{{comment.comment}}</div>
+									</div>
+								{% endif %}
+							</div>
+							{% if comment.made_by == username %}
+							<div class="post-comment-upper">
+								<div class="edit-comm-butt">
+									<form method="post">
+			    						<button type="submit" class="commentedit" id="commentdelete" name="enableedit" value="{{comment.key().id()}}"  onclick="return confirm('Are you sure you want to Edit?');">edit</button>
+									</form>
+								</div>
+								<div class="del-comm-butt">
+									<form method="post">
+			    						<button type="submit" class="commentdelete" id="commentdelete" name="commentdelete" value="{{comment.key().id()}}"  onclick="return confirm('Are you sure you want to delete?');">del</button>
+									</form>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+					</div>		
+					{% endif %}
+				{% endfor %}
+		</div>
+		<hr>
+	</div>
+{% endif %}
+{% endfor %}
+</div>
+
+
+
+{% endblock %}
+
+>>>>>>> caf7c1b02b9ef656cb3a654e1d30d5b0ee5c0fee

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <meta charset="UTF-8">
 
@@ -42,4 +43,50 @@
 <div class="user-display" style="text-orientation: center;"><span>Thanks for stopping by</span></div>
 
 </div>
+=======
+<!DOCTYPE html>
+<meta charset="UTF-8">
+
+
+<html>
+
+<div class="main-container">
+<head>
+	<link rel="stylesheet" type="text/css" href="/css/main.css">
+	<title>Blog Project 3</title>
+</head>
+
+
+<div class="user-display">
+<div class="user-display-left">
+{% if loginpage != True %}
+<form method="get" action="/mainpage">
+    <button type="submit" class='buttonnewpost' id='buttonnewpost'>Home</button>
+</form>
+<form method="get" action="/logout">
+    <button type="submit" class='buttonnewpost' id='buttonnewpost'>Logout</button>
+</form>
+{% endif %}
+</div>
+
+<div class="user-display-right">
+{% if username %}
+<div class="username-display">Welcome, {{ username }}</div>
+{% endif %}
+</div>
+
+</div>
+
+
+
+
+<body>
+{% block content %}
+{% endblock %}
+</body>
+
+<div class="user-display" style="text-orientation: center;"><span>Thanks for stopping by</span></div>
+
+</div>
+>>>>>>> caf7c1b02b9ef656cb3a654e1d30d5b0ee5c0fee
 </html>

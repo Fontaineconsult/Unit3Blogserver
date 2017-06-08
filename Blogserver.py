@@ -460,7 +460,7 @@ class PostEdit(Handler):
 			
 			if delete and self.check_art(post_id): #verified art exists
 				post_to_edit = Art.get_by_id(int(post_id))
-				if post_to_edit.made_by == self.username():
+				if post_to_edit.created_by == self.username():
 					post_to_edit.visible = False
 					post_to_edit.put()
 					self.redirect("/mainpage")
@@ -469,7 +469,7 @@ class PostEdit(Handler):
 
 			if edit and self.check_art(post_id): #verified art exists
 				post_to_edit = Art.get_by_id(int(post_id))
-				if post_to_edit.made_by == self.username():
+				if post_to_edit.created_by == self.username():
 					content = self.request.get("post-body")
 					post_to_edit.art = content
 					post_to_edit.put()

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -11,4 +12,19 @@ handlers:
 
 libraries:
 - name: jinja2
+=======
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /css
+  static_dir: css
+
+- url: /.*
+  script: Blogserver.app
+
+libraries:
+- name: jinja2
+>>>>>>> caf7c1b02b9ef656cb3a654e1d30d5b0ee5c0fee
   version: latest
