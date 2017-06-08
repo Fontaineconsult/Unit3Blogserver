@@ -458,7 +458,7 @@ class PostEdit(Handler):
 			delete = self.request.get("deletebutt", None)
 			edit = self.request.get("submitedit", None)
 			
-			if delete and check_art(post_id): #verified art exists
+			if delete and self.check_art(post_id): #verified art exists
 				post_to_edit = Art.get_by_id(int(post_id))
 				if post_to_edit.made_by == self.username():
 					post_to_edit.visible = False
@@ -467,7 +467,7 @@ class PostEdit(Handler):
 				else:
 					self.redirect("/login")
 
-			if edit and check_art(post_id): #verified art exists
+			if edit and self.check_art(post_id): #verified art exists
 				post_to_edit = Art.get_by_id(int(post_id))
 				if post_to_edit.made_by == self.username():
 					content = self.request.get("post-body")
