@@ -1,0 +1,41 @@
+{% extends "master_template.html" %}
+
+
+{% block content %}
+<main>
+	<h1>User Signup Page</h1>
+	<form method="post">
+	<h2>"Username"
+	<input type="text" name="fullname">
+	{% if fullname == "none" %}
+		<p>Hi, good looking. Your username should just be one word. Try again</p>
+	{% endif %}
+	{% if error %}
+		<p>{{ error }}</p>
+	{% endif %}	
+
+	<h2>"Password"
+	<input type="password"  name="Password">
+	
+	<h2>"Password Again"
+	<input type="password"  name="verifyp">
+	{% if passwordv == "nomatch" %}
+		<p>The server says, A =/= B. </p>
+	{% endif %}
+	
+	<h2>"Email"
+	<input type="text" name="email">
+	{% if email == "none" %}
+		<p>Please enter a valid e-mail, you know, with one of those 'a' characters with a circle around it.</p>
+	{% endif %}
+	<br>
+	<button class='buttonnewpost' id='buttonnewpost'>Submit</button>
+	</form>
+</main>
+
+
+
+
+
+{% endblock %}
+

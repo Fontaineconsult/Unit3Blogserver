@@ -1,0 +1,38 @@
+{% extends "master_template.html" %}
+
+
+{% block content %}
+<div class ="login-page">
+	<div class="login-container">
+		<div class="login-container-top">
+			<h1>User Login</h1>
+		</div>
+
+		<div class="login-container-bottom">
+			<form method = "post">
+			<h2>"Login Name"</h2>
+			<input type="text" name="username">
+			{% if user_error %}
+			<p>{{ user_error }}</p>
+			{% endif %}
+			<h2>"User Pass"</h2>
+			<input type="password" name="password">
+			{% if pass_error %}
+			<p>{{ pass_error }}</p>
+			{% endif %}
+			<br>
+			<a href="/signup">Create a new account</a>
+			<br>
+			<button>Submit</button>
+			</form>
+		</div>
+	</div>
+	<div class="login-right"><h1>Welcome to Project 3: Blog</h1>
+	</div>
+</div>
+
+
+
+
+
+{% endblock %}
