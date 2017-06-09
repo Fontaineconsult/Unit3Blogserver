@@ -205,9 +205,11 @@ class Mainpage(Handler):
 		if comment:
 			comment_to_edit = int(comment[0])
 		else:
+			
 			comment_to_edit = ""
 
 		if verify_user(self.user):
+			
 			self.render("mainpage.html",title=title, art=art, error=error, arts=arts, comments=comments, userdata=userdata, username=self.username(), comment_edit=comment_to_edit)
 		else:
 			self.redirect("/login")
@@ -227,12 +229,13 @@ class Mainpage(Handler):
 		if verify_user(self.user):
 
 			if delete_comment:
-				if self.check_art(delete_comment):
-					comment_to_delete = Comments.get_by_id(int(delete_comment))
+				
+				comment_to_delete = Comments.get_by_id(int(delete_comment))
+				if not comment_to_delete is None and comment_to_delete.made_by == self.username():
 					comment_to_delete.delete()
 					self.redirect("/mainpage")
 				else:
-					self.redirect("/mainpage")
+					self.redirect("/login")
 
 
 			if save_like:
@@ -245,13 +248,15 @@ class Mainpage(Handler):
 				self.redirect("/mainpage")
 
 			if enable_comment_edit:
+				
 				self.render_login('a','b','c', enable_comment_edit) 
 			
 			if submitedit:
 				updated_comment = self.request.get("comment")
 				if self.check_comments(submitedit):
 					comments = Comments.get_by_id(int(submitedit))
-					if not comments:
+			
+					if not comments or comments.made_by != self.username():
 						return self.redirect('login')
 					comments.comment = updated_comment
 					comments.put()
@@ -277,10 +282,7 @@ class User_Signup(Handler):
 			self.render("signup.html")
 
 		else:
-
 			self.render("signup.html")
-		
-
 	def post(self):
 		
 		fullname = verify_login_input(self.request.get("fullname"), type = "username")
