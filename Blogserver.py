@@ -140,14 +140,10 @@ class Handler(webapp2.RequestHandler):
 
 	def check_art(self, post_id):
 		check = Art.get_by_id(int(post_id))
-		logging.info(check.key().id())
-		logging.info(post_id)
 	 	return check.key().id() == int(post_id)
 		
 	def check_comments(self, comment_id):
 		check = Comments.get_by_id(int(comment_id))
-		logging.info(self.user)
-		logging.info(check)
 		return check.key().id() == int(comment_id) and check.made_by == self.username()
 	
 ########Front Page/Posts########
@@ -207,14 +203,11 @@ class Mainpage(Handler):
 		cur_user = db.GqlQuery("Select * FROM User WHERE username = '%s'" % self.user)
 		userdata = cur_user.get()
 		if comment:
-			logging.info(comment)
 			comment_to_edit = int(comment[0])
 		else:
-			logging.info(comment) 
 			comment_to_edit = ""
 
 		if verify_user(self.user):
-			logging.info("fart2 %s", comment_to_edit)
 			self.render("mainpage.html",title=title, art=art, error=error, arts=arts, comments=comments, userdata=userdata, username=self.username(), comment_edit=comment_to_edit)
 		else:
 			self.redirect("/login")
@@ -252,16 +245,12 @@ class Mainpage(Handler):
 				self.redirect("/mainpage")
 
 			if enable_comment_edit:
-				logging.info( "fart1 %s", enable_comment_edit)
 				self.render_login('a','b','c', enable_comment_edit) 
 			
 			if submitedit:
 				updated_comment = self.request.get("comment")
 				if self.check_comments(submitedit):
 					comments = Comments.get_by_id(int(submitedit))
-					logging.info("id %s", submitedit)
-					logging.info("comment %s", updated_comment)
-					
 					if not comments:
 						return self.redirect('login')
 					comments.comment = updated_comment
