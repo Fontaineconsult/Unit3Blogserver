@@ -15,16 +15,14 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
 
-########Security/Hashing########
-
-User_re = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-password_re = re.compile(r"^.{3,20}$")
-email_re = re.compile(r"^[\S]+@[\S]+.[\S]+$")
+"""Security/Hashing"""
 
 
-SECRET = 'Fartmachine'
+
+
 def hash_str(s):
-    return hmac.new(SECRET,s).hexdigest()
+	SECRET = 'slowmorunning'
+    	return hmac.new(SECRET,s).hexdigest()
 def make_secure_val(s):
     return "%s|%s" % (s, hash_str(s))
 
@@ -61,6 +59,10 @@ def verify_user(user_hash):
 		return True
 
 def verify_login_input(string_input, type):
+	User_re = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+	password_re = re.compile(r"^.{3,20}$")
+	email_re = re.compile(r"^[\S]+@[\S]+.[\S]+$")
+
 	if type == "username":
 		output = User_re.match(string_input)
 	elif type == "password":
@@ -73,11 +75,11 @@ def verify_login_input(string_input, type):
 		return "none"
 
 
-#######Database#######
+"""Database"""
 
 class Comments(db.Model):
 	comment = db.TextProperty(required =True)
-	made_by = db.StringProperty(required=True)
+	author = db.StringProperty(required=True)
 	post = db.IntegerProperty(required=True)
 	made_date = db.DateTimeProperty(auto_now_add=True)
 
@@ -87,7 +89,7 @@ class Art(db.Model):
 	title = db.StringProperty(required = True)
 	art = db.TextProperty(required = True)
 	created = db.DateTimeProperty(auto_now_add = True)
-	created_by = db.StringProperty(required = False)
+	author = db.StringProperty(required = False)
 	vote_points = db.IntegerProperty(required = False, default=0)
 	comment_key = db.ListProperty(db.Key)
 	visible = db.BooleanProperty(default=True)
@@ -101,10 +103,31 @@ class User(db.Model):
 	liked_posts = db.ListProperty(int)
 
 
-########Basic Handler########
 
-class Handler(webapp2.RequestHandler):
 
+class Utils(webapp2.RequestHandler):
+	"""Handler Utilities"""
+
+	def usercookie(self):
+		return self.user
+
+	def username(self):
+		return self.user.split("|")[0]
+
+
+	def check_art(self, post_id):
+		check = Art.get_by_id(int(post_id))
+	 	return check
+		
+	def check_comments(self, comment_id):
+		check = Comments.get_by_id(int(comment_id))
+		return check.key().id() == int(comment_id) and check.author == self.username()
+
+
+
+
+class Handler(Utils):
+	"""Basic Handler"""
 	def write(self, *a, **kw):
 		self.response.out.write(*a, **kw)
 
@@ -114,59 +137,47 @@ class Handler(webapp2.RequestHandler):
 
 	def render(self, template, **kw):
 		self.write(self.render_str(template, **kw))
+	
+
 
 	def initialize(self, *a, **kw):
 		webapp2.RequestHandler.initialize(self, *a, **kw)
 		uid = self.request.cookies.get("user")
+
+
 		if uid != None:
 			if verify_user(uid):
+	
 				self.user = uid
 			else:
 				self.user = ""
 		else:
 			self.user = None
 
-	def usercookie(self):
-		return self.user
-
-
-	def username(self):
-		return self.user.split("|")[0]
+		current_user = self.userrecord()
+		if current_user != None:
+			if current_user.username != self.user:
+				self.redirect('login')
 
 	def userrecord(self):
-		user_record = db.GqlQuery("Select * FROM User WHERE username = '%s'" % self.user)
-		user_record_get = user_record.get()
-		return user_record_get
-
-	def check_art(self, post_id):
-		check = Art.get_by_id(int(post_id))
-	 	return check.key().id() == int(post_id)
-		
-	def check_comments(self, comment_id):
-		check = Comments.get_by_id(int(comment_id))
-		return check.key().id() == int(comment_id) and check.made_by == self.username()
+			user_record = db.GqlQuery("Select * FROM User WHERE username = '%s'" % self.user)
+			user_record_get = user_record.get()
+			return user_record_get
 	
-########Front Page/Posts########
+	
+
 
 class Mainpage(Handler):
-		
+	"""Front Page/Posts"""
 	def save_user_like(self):
 
 		if verify_user(self.user):
 			user_cookie = self.request.cookies.get("user")
 			post_id = self.request.get("userlike")
-			if self.check_art(post_id):
+			user_record_get = self.userrecord()
+			if self.check_art(post_id) and user_record_get:
 				liked_post = Art.get_by_id(int(post_id))
-
-				user_record = db.GqlQuery("Select * FROM User WHERE username = '%s'" % user_cookie)
-				user_record_get = user_record.get()
-
-				for stored_cookie in user_record_get.liked_posts:
-				
-					if post_id == stored_cookie or liked_post.created_by == self.username():
-						break
-				else:
-
+				if int(post_id) not in user_record_get.liked_posts and liked_post.author != self.username():
 					user_record_get.liked_posts.append(int(post_id))
 					user_record_get.put()
 					liked_post.vote_points += 1
@@ -184,9 +195,8 @@ class Mainpage(Handler):
 				unliked_post = Art.get_by_id(int(comment_like_to_unlike_form))
 				unliked_post.vote_points = unliked_post.vote_points - 1
 				unliked_post.put()
-
-				logging.error = (self.userrecord())
 				cur_record = self.userrecord()
+				logging.info(cur_record.username)
 				cur_record.liked_posts.remove(int(comment_like_to_unlike_form))
 				cur_record.put()
 			else:
@@ -231,7 +241,7 @@ class Mainpage(Handler):
 			if delete_comment:
 				
 				comment_to_delete = Comments.get_by_id(int(delete_comment))
-				if not comment_to_delete is None and comment_to_delete.made_by == self.username():
+				if not comment_to_delete is None and comment_to_delete.author == self.username():
 					comment_to_delete.delete()
 					self.redirect("/mainpage")
 				else:
@@ -256,7 +266,7 @@ class Mainpage(Handler):
 				if self.check_comments(submitedit):
 					comments = Comments.get_by_id(int(submitedit))
 			
-					if not comments or comments.made_by != self.username():
+					if not comments or comments.author != self.username():
 						return self.redirect('login')
 					comments.comment = updated_comment
 					comments.put()
@@ -271,10 +281,9 @@ class Mainpage(Handler):
 			self.redirect("/login")
 
 
-############## PROBLEM HERE END ############################
 
-########User Login########
 class User_Signup(Handler):
+	"""User Login"""
 
  	def get(self):
 		if verify_user(self.user):
@@ -332,7 +341,8 @@ class User_Login(Handler):
 
 			req_user = req.username
 			req_pass = req.password
-		
+			req_id = req.key().id()
+			
 			input_pass_hash = make_pw_hash(username, password, req_pass)
 
 			if input_pass_hash == req_pass:
@@ -355,24 +365,24 @@ class User_Logout(Handler):
 		self.redirect("/login")
 
 
-######Unused Welcome Page#######	
-class Welcome(Handler):
 
+class Welcome(Handler):
+	"""Welcome Page"""
 	def get(self):
 		
 		if verify_user(self.user):
 
 		 	self.render("welcome.html", username = self.username())
-		 	time.sleep(3)
+		 	time.sleep(2)
 		 	self.redirect("/mainpage")
 		else:
 			self.redirect("/signup")
 
 
-########Blog Posts########
+
 		
 class Post(Handler):
-	
+	"""Blog Posts Creating and Editing"""
 	def get(self):
 		if verify_user(self.user):
 			self.render("post.html", username = self.username())
@@ -386,7 +396,7 @@ class Post(Handler):
 		if title and art:
 
 			if verify_user: #user verified
-				a = Art(title = title, art = art, created_by = current_user)
+				a = Art(title = title, art = art, author = current_user)
 				a.put()
 				time.sleep(1)
 				self.redirect("/postview/%s" % a.key().id())
@@ -418,14 +428,12 @@ class PostHandler(Handler):
 
 		if verify_user(self.user) and self.check_art(post_id): #verified user and art
 			post = Art.get_by_id(int(post_id))
-			new_comment = Comments(comment = comment, made_by = self.username(), post = int(post_id))
+			new_comment = Comments(comment = comment, author = self.username(), post = int(post_id))
 			new_comment.put()
 			post.comment_key.append(new_comment.key())
 			post.put()
 			self.redirect("/mainpage")
 		else:
-			logging.error(post_id)
-			logging.error(self.check_art(post_id))
 			self.error(404)
 
 
@@ -433,7 +441,7 @@ class PostEdit(Handler):
 	def get(self, post_id):
 		if verify_user(self.user): #verified user
 			arts = Art.get_by_id(int(post_id))
-			if self.username() == arts.created_by: #verified owner
+			if self.username() == arts.author: #verified owner
 				
 				self.render("postedit.html", arts=[arts], username = self.username())
 			else:
@@ -451,7 +459,7 @@ class PostEdit(Handler):
 			
 			if delete and self.check_art(post_id): #verified art exists
 				post_to_edit = Art.get_by_id(int(post_id))
-				if post_to_edit.created_by == self.username():
+				if post_to_edit.author == self.username():#verified post owner
 					post_to_edit.visible = False
 					post_to_edit.put()
 					self.redirect("/mainpage")
@@ -460,7 +468,7 @@ class PostEdit(Handler):
 
 			if edit and self.check_art(post_id): #verified art exists
 				post_to_edit = Art.get_by_id(int(post_id))
-				if post_to_edit.created_by == self.username():
+				if post_to_edit.author == self.username():#verified post owner
 					content = self.request.get("post-body")
 					post_to_edit.art = content
 					post_to_edit.put()
@@ -471,9 +479,10 @@ class PostEdit(Handler):
 		else:
 			self.redirect("/login")
 
-########Sets cookie for whole site#######
+
 
 class Toplevel(Handler):
+	"""Sets cookie for whole site"""
 	def get(self):
 		self.response.headers['Content-Type'] = 'text/plain'
  		visits = 0

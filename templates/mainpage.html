@@ -26,11 +26,11 @@
 						<div class="title-top">
 							<span class="fontawesome-minus"></span>
 							<div class="post-title">{{art.title}}&nbsp|</div>
-							<div class="post-user">{{art.created_by}}</div>
+							<div class="post-user">{{art.author}}</div>
 							<div class="like-counts">+ {{art.vote_points}}</div>
 						</div>
 						<div class="title-bottom">
-							{% if art.created_by != username %}
+							{% if art.author != username %}
 							{% if not art.key().id() in userdata.liked_posts %}
 								<div class="like-button">
 									<form method="post">
@@ -47,7 +47,7 @@
 							{% endif %}
 							<div class="post-button">
 								<form method="get" action="/postview/{{art.key().id()}}">
-								{% if art.created_by == username %}
+								{% if art.author == username %}
 	    						<button type="submit" id="add-comment">Edit/Comment</button>
 								{% else %}
 								<button type="submit" name="add-comment" id="add-comment">Comment</button>
@@ -70,7 +70,7 @@
 							<div class="post-comment-lower">
 								<div class="comment-decorator">
 									<div class="post-comment-user">
-										<div class="comment-user">{{comment.made_by}}</div>
+										<div class="comment-user">{{comment.author}}</div>
 										<div class="comment-date">{{comment.made_date.strftime('%m-%d-%y')}}</div>
 									</div>
 								</div>
@@ -89,7 +89,7 @@
 									</div>
 								{% endif %}
 							</div>
-							{% if comment.made_by == username %}
+							{% if comment.author == username %}
 							<div class="post-comment-upper">
 								<div class="edit-comm-butt">
 									<form method="post">
